@@ -18,5 +18,7 @@ public class Main {
             max = Integer.parseInt(br.readLine());
             sys.addFragment(min, max);
         }
+        sys.run();
+        System.out.println(sys.getMinFragments() + " " + sys.getMinOverlap());
     }
 }
