@@ -10,8 +10,13 @@ public class Main {
     }
 
     private static void runCommands(BufferedReader br) throws IOException {
-        int fragments;
-        fragments =  Integer.parseInt(br.readLine());
-        
+        int fragmentNumber, min, max;
+        fragmentNumber = Integer.parseInt(br.readLine());
+        AbstractSystem sys = new ConcreteSystem(fragmentNumber);
+        for (int i = 0; i < fragmentNumber; i++) {
+            min = Integer.parseInt(br.readLine());
+            max = Integer.parseInt(br.readLine());
+            sys.addFragment(min, max);
+        }
     }
 }
