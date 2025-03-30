@@ -4,21 +4,15 @@ import java.io.InputStreamReader;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        BufferedReader br;
-        br = new BufferedReader(new InputStreamReader(System.in));
-        runCommands(br);
-    }
-
-    private static void runCommands(BufferedReader br) throws IOException {
-        int fragmentNumber, min, max;
-        fragmentNumber = Integer.parseInt(br.readLine());
-        AbstractSystem sys = new ConcreteSystem(fragmentNumber);
-        for (int i = 0; i < fragmentNumber; i++) {
-            min = Integer.parseInt(br.readLine());
-            max = Integer.parseInt(br.readLine());
-            sys.addFragment(min, max);
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int number = Integer.parseInt(br.readLine());
+        DNASystem dna = new DNASystem(number);
+        for (int i = 0; i < number; i++) {
+            String input = br.readLine();
+            String[] tokens = input.split(" ");
+            dna.createFragment(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]));
         }
-        sys.run();
-        System.out.println(sys.getMinFragments() + " " + sys.getMinOverlap());
+        int[] ans = dna.start();
+        System.out.println(ans[0]+" "+ans[1]);
     }
 }
