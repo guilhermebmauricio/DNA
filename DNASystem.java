@@ -1,5 +1,6 @@
 import java.util.*;
 
+
 public class DNASystem {
 
     private final List<Fragment> fragments;
