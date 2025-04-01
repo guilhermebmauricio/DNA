@@ -1,18 +1,17 @@
 import java.util.*;
 
-
 public class DNASystem {
 
     private final List<Fragment> fragments;
-    private int[][] result;
-    private final int [][] fragmentMatrix;
+    private int[][] matrix;
+    private int overlap;
     private final int size;
 
     public DNASystem(int number) {
         fragments = new ArrayList<>(number);
         size = number;
-        result = new int[2][size];
-        fragmentMatrix = new int[size][size];
+        overlap = 0;
+        matrix = new int[size][size];
     }
 
     public void createFragment(int start, int end) {
@@ -21,71 +20,61 @@ public class DNASystem {
 
     public int[] start() {
         Collections.sort(fragments);
-        populateMatrix();
-        populateResult();
         calculateAnswer();
-        return new int[]{result[0][size-1], result[1][size-1]};
-    }
-
-    private void populateResult() {
-        result[0][0] = 1;
-        result[1][0] = 0;
-        for(int i = 1; i < size; i++) {
-            result[0][i] = size + 1;
-            result[1][i] = size*10000;
-        }
+        return new int[] { matrix[0][0] , overlap };
     }
 
     private void calculateAnswer() {
-        for(int i = 1; i < size; i++) {
-            for(int k = 0; k < i; k++) {
-                if(fragmentMatrix[k][i] != 0) {
-                    int overlap = 0;
-                    int value = fragmentMatrix[k][i]+result[0][k] -1;
-                    if(fragUnion(fragments.get(k), fragments.get(i)) == 1){
-                        overlap += result[1][k];
-                    }
-                    else{ overlap = calculateOverlap(k,i)+result[1][k];}
-                    if(value < result[0][i] || (value == result[0][i] &&  overlap < result[1][i])) {
-                        result[0][i] = value;
-                        result[1][i] = overlap;
+        int lastElement;
+        int[] lineOverlap = new int[size];
+        lastElement = size - 1;
+        matrix[lastElement][lastElement] = 1;
+        for (int i = lastElement - 1; i >= 0; i--) {
+            matrix[i][i] = 0;
+            lineOverlap[i] = 0;
+            for (int j = lastElement; j > i; j--) {
+                matrix[i][j] = matrix[i + 1][j];
+                // n(j) != 0
+                if (matrix[i][j] != 0) {
+                    // há interseção
+                    if (hasIntersection(fragments.get(i), fragments.get(j))) {
+                        if (i == 0 && (fragments.get(i).start() == fragments.get(j).start())) {
+                            if (matrix[i][i] == 0 || matrix[i][i] > matrix[i][j]
+                                    || (matrix[i][i] == matrix[i][j] && lineOverlap[i] > lineOverlap[j])) {
+                                matrix[i][i] = matrix[i][j];
+                                lineOverlap[i] = lineOverlap[j];
+                            }
+                        } else if (fragments.get(i).end() >= fragments.get(j).end()) {
+                            if (matrix[i][i] == 0 || matrix[i][i] > matrix[i][j]
+                                    || (matrix[i][i] == matrix[i][j] && lineOverlap[i] > lineOverlap[j])) {
+                                matrix[i][i] = matrix[i][j];
+                                lineOverlap[i] = lineOverlap[j];
+                            }
+                            if (fragments.get(i).start() != fragments.get(j).start()) {
+                                matrix[i][j]++;
+                                lineOverlap[j] += calculateOverlap(fragments.get(i), fragments.get(j));
+                            }
+                        } else {
+                            // caso geral: n(i) = n(j) + 1, o(i) = o(j) + calculateOverlap(i, j)
+                            if (matrix[i][i] == 0 || matrix[i][i] > matrix[i][j]
+                                    || (matrix[i][i] + 1 == matrix[i][j] && lineOverlap[i] > lineOverlap[j] + calculateOverlap(fragments.get(i), fragments.get(j)))) {
+                                matrix[i][i] = matrix[i][j] + 1;
+                                lineOverlap[i] = lineOverlap[j] + calculateOverlap(fragments.get(i), fragments.get(j));
+                            }
+                        }
                     }
                 }
             }
         }
+        overlap = lineOverlap[0];
     }
 
-    private int calculateOverlap(int k, int i) {
-        Fragment temp1 = fragments.get(k);
-        Fragment temp2 = fragments.get(i);
-        return Math.min(temp1.end(),temp2.end()) - Math.max(temp1.start(),temp2.start()) + 1;
+    private boolean hasIntersection(Fragment fragment1, Fragment fragment2) {
+        return !(fragment1.end() < fragment2.start());
     }
 
-    private void populateMatrix() {
-        for(int i = 0; i < size; i++) {
-            for(int j = i; j < size; j++) {
-                fragmentMatrix[i][j] = fragUnion(fragments.get(i),fragments.get(j));
-                if(fragmentMatrix[i][j] == 0) {
-                    break;
-                }
-            }
-        }
+    private int calculateOverlap(Fragment fragment1, Fragment fragment2) {
+        return Math.min(fragment1.end(), fragment2.end()) - Math.max(fragment1.start(), fragment2.start());
     }
 
-    private int fragUnion(Fragment fragment, Fragment fragment1) {
-        if(fragment.equals(fragment1)) {
-            return 1;
-        }
-        return intersect(fragment, fragment1);
-    }
-
-    private int intersect(Fragment fragment, Fragment fragment1) {
-        if( fragment.start() == fragment1.start()|| (fragment.end() >= fragment1.end())) {
-            return 1;
-        }
-        else if(fragment.end() >= fragment1.start()  || fragment.end() == fragment1.start()-1) {
-            return 2;
-        }
-        return 0;
-    }
 }
