@@ -1,4 +1,6 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class DNASystem {
 
@@ -37,7 +39,7 @@ public class DNASystem {
                 // n(j) != 0
                 if (matrix[i][j] != 0) {
                     // há interseção
-                    if (hasIntersection(fragments.get(i), fragments.get(j))) {
+                    if (hasIntersection(fragments.get(i), fragments.get(j)) || fragments.get(i).end() == fragments.get(j).start() - 1) {
                         if (i == 0 && (fragments.get(i).start() == fragments.get(j).start())) {
                             if (matrix[i][i] == 0 || matrix[i][i] > matrix[i][j]
                                     || (matrix[i][i] == matrix[i][j] && lineOverlap[i] > lineOverlap[j])) {
@@ -74,7 +76,10 @@ public class DNASystem {
     }
 
     private int calculateOverlap(Fragment fragment1, Fragment fragment2) {
-        return Math.min(fragment1.end(), fragment2.end()) - Math.max(fragment1.start(), fragment2.start());
+        int overlap = 0;
+        if (hasIntersection(fragment1, fragment2))
+            overlap = Math.min(fragment1.end(), fragment2.end()) - Math.max(fragment1.start(), fragment2.start());
+        return overlap;
     }
 
 }
