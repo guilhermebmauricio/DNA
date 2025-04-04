@@ -46,20 +46,23 @@ public class DNASystem {
                                 matrix[i][i] = matrix[i][j];
                                 lineOverlap[i] = lineOverlap[j];
                             }
-                        } else if (fragments.get(i).end() >= fragments.get(j).end()) {
-                            if (matrix[i][i] == 0 || matrix[i][i] > matrix[i][j]
+                        } else if (fragments.get(i).end() > fragments.get(j).end()) {
+                            if (matrix[i][j] == 1) {
+                                matrix[i][i] = matrix[i][j];
+                                lineOverlap[i] = lineOverlap[j];
+                                matrix[i][j]++;
+                                lineOverlap[j] += (fragments.get(i).end() - fragments.get(j).end());
+                            }
+                        } else if (fragments.get(i).end() == fragments.get(j).end()) {
+                            if (matrix[i][i] == 0 || matrix[i][i] > matrix[i][j] + 1
                                     || (matrix[i][i] == matrix[i][j] && lineOverlap[i] > lineOverlap[j])) {
                                 matrix[i][i] = matrix[i][j];
                                 lineOverlap[i] = lineOverlap[j];
                             }
-                            if (fragments.get(i).start() != fragments.get(j).start()) {
-                                matrix[i][j]++;
-                                lineOverlap[j] += calculateOverlap(fragments.get(i), fragments.get(j));
-                            }
                         } else {
                             // caso geral: n(i) = n(j) + 1, o(i) = o(j) + calculateOverlap(i, j)
-                            if (matrix[i][i] == 0 || matrix[i][i] > matrix[i][j]
-                                    || (matrix[i][i] + 1 == matrix[i][j] && lineOverlap[i] > lineOverlap[j] + calculateOverlap(fragments.get(i), fragments.get(j)))) {
+                            if (matrix[i][i] == 0 || matrix[i][i] > matrix[i][j] + 1
+                                    || (matrix[i][i] == matrix[i][j] + 1 && lineOverlap[i] > (lineOverlap[j] + calculateOverlap(fragments.get(i), fragments.get(j))))) {
                                 matrix[i][i] = matrix[i][j] + 1;
                                 lineOverlap[i] = lineOverlap[j] + calculateOverlap(fragments.get(i), fragments.get(j));
                             }
@@ -76,10 +79,7 @@ public class DNASystem {
     }
 
     private int calculateOverlap(Fragment fragment1, Fragment fragment2) {
-        int overlap = 0;
-        if (hasIntersection(fragment1, fragment2))
-            overlap = Math.min(fragment1.end(), fragment2.end()) - Math.max(fragment1.start(), fragment2.start());
-        return overlap;
+        return 1 + Math.min(fragment1.end(), fragment2.end()) - Math.max(fragment1.start(), fragment2.start());
     }
 
 }

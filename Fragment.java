@@ -1,5 +1,4 @@
-import static java.lang.Integer.compare;
-
+import static java.lang.Integer.*;
 
 public record Fragment(int start, int end) implements Comparable<Fragment> {
 
