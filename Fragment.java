@@ -1,5 +1,9 @@
 import static java.lang.Integer.*;
 
+/**
+ * @author Guilherme Mauricio 62746
+ * @author Andre Santiago 65102
+ */
 public record Fragment(int start, int end) implements Comparable<Fragment> {
 
     @Override
